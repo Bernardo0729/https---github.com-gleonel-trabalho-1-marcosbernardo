@@ -27,6 +27,7 @@ function updateTimer() {
     removeImagens();
     addImagesToGrid();
     enableClickableImages();
+    clearInterval(interval);
 
   } else {
     // Reduza a duração em 1 segundo
@@ -35,7 +36,11 @@ function updateTimer() {
 }
 
 // Inicialize o timer e atualize a cada segundo (1000 milissegundos)
-setInterval(updateTimer, 1000);
+const interval = [
+  setInterval(updateTimer, 1000)
+];
+
+
 
 const imageUrls = [
   "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/094.png",

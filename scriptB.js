@@ -9,6 +9,10 @@ function formatTime(milliseconds) {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
+
+let replacedImagesClicked = 0; 
+let userLost = false;
+
 // Função para atualizar o timer e exibir na página HTML
 function updateTimer() {
   // Exiba o tempo restante em minutos e segundos
@@ -28,6 +32,8 @@ function updateTimer() {
     addImagesToGrid();
     enableClickableImages();
     clearInterval(interval);
+    replacedImagesClicked = 0;
+    userLost = true;
 
   } else {
     // Reduza a duração em 1 segundo
@@ -80,7 +86,7 @@ function removeImagens() {
 }
 
 function substituiImagens() {
-  imageUrls.splice(6, 3, "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/020.png", "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/018.png", "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/024.png");
+  imageUrls.splice(6, 3, "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/020.png", "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/018.png", "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/025.png");
 
 }
 
@@ -93,67 +99,40 @@ function enableClickableImages() {
     if (clickedElement.tagName === 'IMG') {
       const imageUrl = clickedElement.src;
 
-      // Verifica se a imagem clicada está entre as imagens substituídas
       if (imageUrls.includes(imageUrl)) {
-        // Remove a imagem do DOM ao ser clicada
         clickedElement.remove();
 
-        // Verifica se todas as imagens foram removidas
-        checkWinCondition();
+        // Verifique se a imagem clicada pertence às imagens substituídas
+        if (substitutedImageUrls.includes(imageUrl)) {
+          replacedImagesClicked++;
+
+          // Verifique se todas as imagens substituídas foram clicadas
+          checkAllReplacedImagesClicked();
+        }
       } else {
         // Se a imagem clicada não estiver entre as substituídas, o usuário perdeu
+        userLost = true;
         document.body.innerHTML = '';
         const loseMessage = document.createElement('h1');
-        loseMessage.textContent = "Você perdeu!";
+        loseMessage.textContent = "Desculpe, você perdeu!";
         document.body.appendChild(loseMessage);
       }
     }
-
-    // Verifica se todas as imagens não substituídas foram clicadas
-    checkAllNonReplacedImagesClicked();
   });
 }
 
-function checkAllNonReplacedImagesClicked() {
-  const gridContainer = document.getElementById("imageGrid");
-  const replacedImageUrls = [
-    "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/020.png",
-    "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/018.png",
-    "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/024.png"
-  ];
-  
-  const images = gridContainer.querySelectorAll("img");
+function checkAllReplacedImagesClicked() {
+  const totalReplacedImages = substitutedImageUrls.length;
 
-  // Filtra as imagens que não foram substituídas
-  const nonReplacedImages = Array.from(images).filter(img => !replacedImageUrls.includes(img.src));
-
-  // Se não há mais imagens não substituídas no grid
-  if (nonReplacedImages.length === 0) {
-    // Apaga todo o conteúdo da tela
+  // Se todas as imagens substituídas foram clicadas, exiba a mensagem de vitória
+  if (replacedImagesClicked === totalReplacedImages) {
     document.body.innerHTML = '';
-
-    // Exibe a mensagem de parabéns
-    const congratulationsMessage = document.createElement('h1');
-    congratulationsMessage.textContent = "Parabéns, você ganhou!";
-    document.body.appendChild(congratulationsMessage);
+    const winMessage = document.createElement('h1');
+    winMessage.textContent = "Parabéns, você ganhou!";
+    document.body.appendChild(winMessage);
   }
 }
 
-function checkLoseCondition() {
-  const gridContainer = document.getElementById("imageGrid");
-  const images = gridContainer.querySelectorAll("img");
-
-  // Se ainda há imagens no grid
-  if (images.length > 0) {
-    // Apaga todo o conteúdo da tela
-    document.body.innerHTML = '';
-
-    // Exibe a mensagem de "Você perdeu"
-    const loseMessage = document.createElement('h1');
-    loseMessage.textContent = "Você perdeu!";
-    document.body.appendChild(loseMessage);
-  }
-}
 
 // Chama a função para adicionar imagens ao carregar a página
   addImagesToGrid();
